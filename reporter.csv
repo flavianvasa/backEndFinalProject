@@ -1,5 +1,5 @@
-_id,username,password
-1,reporter1,1111
-2,reporter2,2222
-3,reporter3,3333
-4,reporter4,4444
+_id,username,password,role
+1,reporter1,1111,R
+2,reporter2,2222,R
+3,reporter3,3333,R
+4,reporter4,4444,R

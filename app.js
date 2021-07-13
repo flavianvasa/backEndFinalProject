@@ -1,52 +1,36 @@
 const express = require('express')
-const mongodb = require("mongodb").MongoClient;
+var bodyParser = require('body-parser')
 const con = require('./db/conn')
+const router_1 = require('./controller/login')
+const router_2 = require('./controller/private')
+const router_public = require('./controller/public/showIssues')
 const csvtojson = require("csvtojson");
 let url = "mongodb://localhost:27017/";
 const app = express()
 const port = 3000
 con.client.connect()
-csvtojson()
-    .fromFile("reporter.csv")
-    .then(csvData => {
-        // mongodb.connect(
-        //     url,
-        //     { useNewUrlParser: true, useUnifiedTopology: true },
-        //     (err, client) => {
-        //       if (err) throw err;
-       // con.client.connect()
-        csvData.forEach(obj => {
-            con.client
-                .db("userDB")
-                .collection("userCollection")
-                .updateOne(obj, { $set: obj }, { upsert: true }, (err, res) => {
-                    if (err) throw err;
-                    //con.client.close();
-                });
+csvtojson().fromFile("reporter.csv").then(csvData => {
+    csvData.forEach( obj =>{
+        con.client.db("userDB").collection("userCollection").updateOne({ "username": obj.username }, { $set: obj }, { upsert: true }, (err, res) => {
+            if (err) throw err;
+            //con.client.close();
         });
     });
-csvtojson()
-    .fromFile("developer.csv")
-    .then(array => {
-        // mongodb.connect(
-        //     url,
-        //     { useNewUrlParser: true, useUnifiedTopology: true },
-        //     (err, client) => {
-        //       if (err) throw err;
-        
-        array.forEach(obj1 => {
-            con.client
-                .db("userDB")
-                .collection("devCollection")
-                .updateOne(obj1, { $set: obj1 }, { upsert: true }, (err, res) => {
-                    if (err) throw err;
+});
+csvtojson().fromFile("developer.csv").then(array => {
+    array.forEach( obj =>{
+        con.client.db("userDB").collection("userCollection").updateOne({ "username": obj.username }, { $set: obj }, { upsert: true }, (err, res) => {
+            if (err) throw err;
 
-                    con.client.close();
-                });
+            //con.client.close();
         });
-        
     });
 
+});
+app.use(bodyParser.json())
+app.use('/app', router_1.login);
+app.use('/private', router_2.private);
+app.use('/public',router_public.public)
 app.listen(port, () => {
     console.log(`app listening at http://localhost:${port}`)
 });

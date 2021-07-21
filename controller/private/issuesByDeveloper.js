@@ -9,10 +9,10 @@ res.send(result);
 });
 
 
-router.post('/updateStatus', async (req,res) => {
+router.put('/updateStatus', async (req,res) => {
     const {id,status} = req.body;
-    await resolveIssue(id,status);
-    res.send("Updated");
+    const result =await resolveIssue(id,status);
+    res.json({"message":result});
     });
 
 async function getIssuesForSpecificDev (dev){
@@ -26,8 +26,15 @@ async function getIssuesForSpecificDev (dev){
 }
 
 async function resolveIssue(id,status){
-    await  con.client.db("userDB").collection("issuesCollection").updateOne({"_id":id},{$set:{"status":status}});
-    
+    console.log("id "+id);
+    console.log("status "+status)
+  const result =  await  con.client.db("userDB").collection("issuesCollection").updateOne({"_id" : id},{$set:{"status":status}});
+  
+ if  (result.modifiedCount === 1){
+     return "updated"
+ } else{
+     return "failed updating"
+ }  
 
 }
 

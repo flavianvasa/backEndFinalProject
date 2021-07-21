@@ -4,35 +4,36 @@ const con = require('../../db/conn')
 
 
 router.post('/addIssues', async(req,res) =>{
-const {status,type,developer} = req.body;
+const {status,issue,type,developer} = req.body;
 const author = req.user;
-const result = await addIssues(status,author,type,developer);
+const result = await addIssues(status,issue,author,type,developer);
 
 return res.json(result);
 
 })
 
 
-router.post('/updateIssues/:id', async(req,res) =>{
+router.put('/updateIssues/:id', async(req,res) =>{
    const _id = req.params.id;
    const id = parseInt(_id);
   
     const author = req.user;
-    const {status,type,developer}= req.body;
+    const {status,issue, type,developer}= req.body;
      const result = await isAuthor(id,author);
     if (result){
-        updateIssue(id,status,type,developer);
+       const result=await  updateIssue(id,status,issue,type,developer);
+       return res.json({"message":result});
      }else{
 
         return res.json({"message": "This issue can be updated only by the author"});
     }
-    res.json({"message": "Updated"});
+   
     })
 
-async function addIssues (status,author,type,developer){
+async function addIssues (status,issue,author,type,developer){
     
         const result = await  con.client.db("userDB").collection("issuesCollection")
-.insertOne({"_id":await getNextSequenceValue("productid"),"status":status, "author":author,"type":type,"developer":developer});
+.insertOne({"_id":await getNextSequenceValue("productid"),"status":status,"issue":issue, "author":author,"type":type,"developer":developer});
         
         return result;
     
@@ -59,9 +60,13 @@ async function isAuthor (_id,author){
 
 }
 
-async function updateIssue(id,status,type,developer){
-    await  con.client.db("userDB").collection("issuesCollection").updateOne({"_id" : id},{$set:{"status":status,"type":type,"developer":developer}});
-    
+async function updateIssue(id,status,issue,type,developer){
+   const result = await  con.client.db("userDB").collection("issuesCollection").updateOne({"_id" : id},{$set:{"status":status,"issue":issue,"type":type,"developer":developer}});
+   if  (result.modifiedCount === 1){
+    return "updated"
+} else{
+    return "failed updating"
+}  
 
 }
 

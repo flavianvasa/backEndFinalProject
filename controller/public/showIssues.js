@@ -34,7 +34,7 @@ router.get('/filerIssuesDev/:developer', async (req,res) =>{
 
 async function showAllIssues(){
  
-    const result = await  con.client.db("userDB").collection("issuesCollection").find().toArray();
+    const result = await  con.client.db("userDB").collection("issuesCollection").find().sort({_id:-1}).toArray();
     return result;
  
 }

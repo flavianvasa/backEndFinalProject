@@ -19,6 +19,7 @@ router.post('/login', async function (req, res) {
     else{
         
             const token = await myfunction.createTokenForUser(user.username,user.role)
+            console.log(token);
             return res.json({
                 access_token: token
             })
